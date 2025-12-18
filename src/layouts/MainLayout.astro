@@ -1,0 +1,62 @@
+---
+import Navbar from '../components/Navbar.astro';
+const { titulo } = Astro.props;
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{titulo} | Insight Gnosis</title> <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;600;800&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <Navbar />
+    <main>
+      <slot /> 
+    </main>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --bg-dark: #050505;
+  }
+
+  /* 1. Reset Global e impedir desborde */
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    /* overflow-x: hidden es vital aquí, pero lo aplicamos con cuidado */
+    overflow-x: hidden; 
+    position: relative;
+    background-color: var(--bg-dark);
+  }
+
+  /* 2. Asegurar que el box-sizing sea correcto en TODA la web */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    color: #e2e8f0;
+    line-height: 1.5;
+    /* Esto permite que el zoom funcione pero el contenido no se mueva lateralmente */
+    -webkit-text-size-adjust: 100%;
+  }
+  
+  main {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    /* Blindaje extra para los hijos */
+    overflow-x: hidden; 
+  }
+</style>

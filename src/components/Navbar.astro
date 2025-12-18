@@ -1,0 +1,202 @@
+---
+import logo from '../img/logo-222-br.webp';
+
+// --- OPCIONES "TIER 1" ---
+const text = {
+  vision: "VISION",
+  expertise: "EXPERTISE",
+  ecosystem: "ECOSYSTEM",
+  insights: "INSIGHTS",
+  initiate: "INITIATE" 
+};
+
+const menuItems = [
+  { label: text.vision, url: "/vision" },
+  { label: text.expertise, url: "/expertise" },
+  { label: text.ecosystem, url: "/ecosystem" },
+  { label: text.insights, url: "/insights" },
+  { label: text.initiate, url: "/contacto", isButton: true },
+];
+---
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;400;600&display=swap" rel="stylesheet">
+
+<nav class="navbar">
+  <div class="logo-container">
+    <a href="/" class="logo-wrapper">
+      <img src={logo.src} alt="Insight Gnosis Logo" class="logo-img" id="nav-logo" />
+    </a>
+  </div>
+
+  <div class="hamburger" id="hamburger-btn">
+    <span class="bar top"></span>
+    <span class="bar mid"></span>
+    <span class="bar bot"></span>
+  </div>
+  
+  <ul class="nav-links" id="nav-menu">
+    {menuItems.map((item, index) => (
+      <li class={item.isButton ? 'cta-item' : ''} style={`--i: ${index};`}>
+        <a href={item.url} class={item.isButton ? 'cta-link' : 'nav-link'}>
+          {item.label}
+        </a>
+      </li>
+    ))}
+  </ul>
+</nav>
+
+<script>
+  // 1. MENÚ HAMBURGUESA
+  const hamburger = document.getElementById('hamburger-btn');
+  const navMenu = document.getElementById('nav-menu');
+  const body = document.body;
+
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('active');
+    navMenu.classList.toggle('active');
+    if (navMenu.classList.contains('active')) { body.style.overflow = 'hidden'; } 
+    else { body.style.overflow = 'auto'; }
+  });
+
+  document.querySelectorAll('.nav-links a').forEach(n => n.addEventListener('click', () => {
+    hamburger.classList.remove('active');
+    navMenu.classList.remove('active');
+    body.style.overflow = 'auto';
+  }));
+
+  // 2. LÓGICA DE ROTACIÓN Y BRILLO
+  const logoElement = document.getElementById('nav-logo');
+  let isScrolling;
+
+  window.addEventListener('scroll', () => {
+    if (logoElement) {
+      const scrollPosition = window.scrollY;
+
+      // A) ROTACIÓN
+      const rotation = scrollPosition / 5;
+      logoElement.style.transform = `rotate(${rotation}deg)`;
+
+      // B) BRILLO INTENSO
+      logoElement.classList.add('scrolling-glow');
+
+      // C) DETECTAR PAUSA
+      window.clearTimeout(isScrolling);
+      isScrolling = setTimeout(() => {
+        logoElement.classList.remove('scrolling-glow');
+      }, 150);
+    }
+  });
+</script>
+
+<style>
+  /* --- 1. CONFIGURACIÓN BASE --- */
+  :root {
+    --font-main: 'Outfit', sans-serif;
+    --color-glass: rgba(10, 10, 10, 0.85);
+    --color-text: #e2e8f0;
+    --color-accent: #38bdf8;
+  }
+
+  .navbar {
+    font-family: var(--font-main);
+    background: var(--color-glass); 
+    backdrop-filter: blur(20px); 
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 1rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+    height: 90px;
+  }
+
+  /* --- 2. LOGO --- */
+  
+  /* WRAPPER: Animación de flotar (Desktop) */
+  .logo-wrapper {
+    display: block;
+    animation: floatOnly 6s ease-in-out infinite;
+  }
+
+  @keyframes floatOnly {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-6px); }
+  }
+
+  /* IMAGEN: Rotación y Brillo */
+  .logo-img {
+    height: 60px;
+    width: auto;
+    cursor: pointer;
+    will-change: transform, filter;
+    transition: filter 0.3s ease;
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.2)); 
+  }
+
+  .logo-img.scrolling-glow {
+    filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.8));
+  }
+
+  /* --- 3. ENLACES --- */
+  .nav-links {
+    display: flex; gap: 3.5rem; list-style: none; padding: 0; margin: 0; align-items: center;
+  }
+  .nav-link {
+    color: var(--color-text); text-decoration: none; font-size: 0.75rem; text-transform: uppercase;
+    letter-spacing: 3px; font-weight: 400; transition: color 0.4s ease; position: relative;
+  }
+  .nav-link::after {
+    content: ''; position: absolute; bottom: -8px; left: 50%; width: 0; height: 1px;
+    background: var(--color-accent); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); transform: translateX(-50%);
+  }
+  .nav-link:hover { color: #fff; }
+  .nav-link:hover::after { width: 100%; }
+
+  .cta-link {
+    border: 1px solid rgba(255, 255, 255, 0.2); padding: 0.8rem 2rem; border-radius: 2px;
+    color: #fff; text-decoration: none; font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase;
+    transition: all 0.3s ease;
+  }
+  .cta-link:hover { background: #fff; color: #000; box-shadow: 0 0 20px rgba(255, 255, 255, 0.3); }
+
+  /* --- 4. HAMBURGUESA --- */
+  .hamburger { display: none; cursor: pointer; width: 40px; height: 30px; position: relative; z-index: 10001; }
+  .bar { display: block; width: 100%; height: 1px; background-color: white; position: absolute; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+  .top { top: 0; } .mid { top: 50%; transform: translateY(-50%); } .bot { bottom: 0; }
+
+  /* --- 5. RESPONSIVE --- */
+  @media (max-width: 1024px) {
+    .navbar { padding: 0 1.5rem; height: 80px; }
+    
+    /* --- AQUÍ ESTÁ EL CAMBIO SOLICITADO --- */
+    /* Desactivamos la levitación en móvil para que no se mueva verticalmente */
+    .logo-wrapper {
+        animation: none;
+    }
+    
+    .hamburger { display: block; }
+    .hamburger.active .top { top: 50%; transform: rotate(45deg); }
+    .hamburger.active .mid { opacity: 0; }
+    .hamburger.active .bot { top: 50%; transform: rotate(-45deg); }
+
+    .nav-links {
+      position: fixed; inset: 0; width: 100%; height: 100dvh;
+      background: #050505; flex-direction: column; justify-content: center; align-items: center;
+      gap: 3rem; padding: 0; transform: translateX(-100%);
+      transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1); z-index: 10000;
+    }
+    .nav-links.active { transform: translateX(0); }
+    .nav-links li { opacity: 0; transform: translateX(-50px); transition: none; }
+    @keyframes slideInRight { from { opacity: 0; transform: translateX(-50px); } to { opacity: 1; transform: translateX(0); } }
+    .nav-links.active li { animation: slideInRight 0.5s ease-out forwards; animation-delay: calc(0.3s + (var(--i) * 0.1s)); }
+    .nav-link, .cta-link { font-size: 1.5rem; font-weight: 300; letter-spacing: 4px; border: none; padding: 0; color: #e2e8f0; }
+    .nav-link:hover { color: var(--color-accent); }
+    .cta-item { margin-top: 2rem; }
+    .cta-link { font-size: 1.2rem; font-weight: 400; border: 1px solid rgba(255,255,255,0.1); padding: 1rem 3rem; background: rgba(255,255,255,0.03); }
+  }
+</style>

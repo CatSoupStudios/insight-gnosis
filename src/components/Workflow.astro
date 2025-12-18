@@ -1,0 +1,246 @@
+---
+// Workflow.astro
+const steps = [
+  {
+    id: "01",
+    title: "Deep Synchronization",
+    desc: "We align with your core vision using data-driven discovery.",
+    icon: "DATA" 
+  },
+  {
+    id: "02",
+    title: "Neural Architecture",
+    desc: "Structuring the logic and scalable foundations of the system.",
+    icon: "LOGIC"
+  },
+  {
+    id: "03",
+    title: "Synthesis & Code",
+    desc: "High-performance development loops with continuous deployment.",
+    icon: "BUILD"
+  },
+  {
+    id: "04",
+    title: "Global Propagation",
+    desc: "Launch, CDN distribution, and post-deployment stabilization.",
+    icon: "LIVE"
+  }
+];
+---
+
+<section class="workflow-section" id="workflow">
+    <div class="header-reveal reveal-on-scroll">
+        <h2 class="section-title">EXECUTION <span class="text-gradient">PROTOCOL</span></h2>
+    </div>
+
+    <div class="timeline-container">
+        <div class="line-base"></div>
+        <div class="line-progress" id="progress-line"></div>
+
+        <div class="steps-wrapper">
+            {steps.map((step, index) => (
+                <div class="step-item" data-index={index}>
+                    <div class="step-marker">
+                        <div class="marker-circle"></div>
+                    </div>
+                    <div class="step-content">
+                        <span class="step-id">/// PHASE {step.id}</span>
+                        <h3>{step.title}</h3>
+                        <p>{step.desc}</p>
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+</section>
+
+<script>
+    const section = document.getElementById('workflow');
+    const progressLine = document.getElementById('progress-line');
+    const stepItems = document.querySelectorAll('.step-item');
+
+    const updateWorkflow = () => {
+        if (!section || !progressLine) return;
+
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.offsetHeight;
+        const scrollY = window.scrollY;
+        const windowHeight = window.innerHeight;
+
+        const startPoint = sectionTop - windowHeight / 1.5; // Empieza un poco antes
+        let progress = (scrollY - startPoint) / (sectionHeight - windowHeight / 4);
+        
+        progress = Math.max(0, Math.min(1, progress));
+        progressLine.style.height = `${progress * 100}%`;
+
+        stepItems.forEach(item => {
+            // @ts-ignore
+            const itemTop = item.offsetTop;
+            const currentLineHeight = progress * sectionHeight;
+
+            if (currentLineHeight > itemTop - 50) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    };
+
+    window.addEventListener('scroll', updateWorkflow);
+    window.addEventListener('resize', updateWorkflow);
+</script>
+
+<style>
+    .workflow-section {
+        position: relative;
+        z-index: 20;
+        width: 100%;
+        padding: 6rem 1.5rem; /* Padding lateral móvil */
+        overflow: hidden;
+    }
+
+    .header-reveal { text-align: center; margin-bottom: 4rem; }
+    
+    .section-title { 
+        font-family: 'Outfit', sans-serif; 
+        font-size: clamp(2.2rem, 8vw, 3.5rem); 
+        font-weight: 700; 
+        color: #fff; 
+        line-height: 1.1;
+    }
+
+    .text-gradient { 
+        background: linear-gradient(135deg, #38bdf8 0%, #a78bfa 100%); 
+        -webkit-background-clip: text; 
+        -webkit-text-fill-color: transparent; 
+    }
+
+    /* --- TIMELINE CONTAINER --- */
+    .timeline-container {
+        position: relative;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    /* --- LÍNEAS (Móvil: a la izquierda) --- */
+    .line-base, .line-progress {
+        position: absolute;
+        top: 0;
+        left: 10px; /* Pegado a la izquierda en móvil */
+        width: 2px;
+        z-index: 0;
+    }
+
+    .line-base { background: rgba(255, 255, 255, 0.1); height: 100%; }
+    
+    .line-progress {
+        height: 0%;
+        background: linear-gradient(180deg, #38bdf8, #a78bfa);
+        box-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
+        z-index: 1;
+        transition: height 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* --- STEPS --- */
+    .steps-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 4rem; /* Gap reducido en móvil */
+    }
+
+    .step-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1.5rem; /* Gap reducido entre marcador y texto */
+        opacity: 0.15;
+        filter: blur(4px);
+        transform: translateY(20px);
+        transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .step-item.active {
+        opacity: 1;
+        filter: blur(0);
+        transform: translateY(0);
+    }
+
+    /* --- MARKER --- */
+    .step-marker {
+        position: relative;
+        min-width: 22px; /* Más delgado para móvil */
+        height: 22px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 5px;
+    }
+
+    .marker-circle {
+        width: 10px; height: 10px;
+        background: #050505;
+        border: 2px solid #334155;
+        border-radius: 50%;
+        z-index: 5;
+        transition: all 0.4s ease;
+    }
+
+    .step-item.active .marker-circle {
+        background: #38bdf8;
+        border-color: #38bdf8;
+        box-shadow: 0 0 15px #38bdf8;
+        transform: scale(1.3);
+    }
+
+    /* --- CONTENT --- */
+    .step-content { flex: 1; }
+    .step-id { display: block; font-family: monospace; font-size: 0.7rem; color: #38bdf8; margin-bottom: 0.5rem; letter-spacing: 2px; }
+    
+    h3 { 
+        font-family: 'Outfit', sans-serif; 
+        font-size: clamp(1.4rem, 5vw, 1.8rem); 
+        color: #e2e8f0; 
+        margin-bottom: 0.5rem; 
+    }
+
+    p { color: #94a3b8; font-size: 0.95rem; line-height: 1.6; }
+
+    /* --- RESPONSIVE DESKTOP (ALTERNADO) --- */
+    @media (min-width: 768px) {
+        .workflow-section { padding: 8rem 1rem; }
+        .line-base, .line-progress { left: 50%; }
+        .steps-wrapper { gap: 8rem; }
+
+        .step-item {
+            width: 50%;
+            margin-left: auto;
+            padding-left: 4rem;
+            gap: 0;
+            transform: translateX(30px);
+        }
+
+        .step-item.active { transform: translateX(0); }
+
+        .step-marker {
+            position: absolute;
+            left: -11px;
+            top: 0;
+            min-width: 22px;
+        }
+
+        .step-item:nth-child(even) {
+            margin-left: 0;
+            margin-right: auto;
+            padding-left: 0;
+            padding-right: 4rem;
+            text-align: right;
+            transform: translateX(-30px);
+        }
+
+        .step-item:nth-child(even).active { transform: translateX(0); }
+        
+        .step-item:nth-child(even) .step-marker {
+            left: auto;
+            right: -11px;
+        }
+    }
+</style>

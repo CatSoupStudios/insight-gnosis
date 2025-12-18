@@ -1,0 +1,339 @@
+---
+// --- MODULARIDAD DE TEXTOS ---
+const content = {
+    titleStart: "Building the Future",
+    // La segunda parte del título la maneja el Typewriter (JS)
+    
+    description: "Transcend the ordinary. We are forging the next epoch of digital interaction, where speed is a reflex and aesthetics are a fundamental law of physics.",
+    
+    btnPrimary: "Initiate Protocol",
+    btnSecondary: "Explore Vision"
+}
+---
+
+<canvas id="particles-canvas"></canvas>
+
+<section class="home-container">
+    <div class="hero-content">
+        <h1 class="reveal-text">
+            {content.titleStart} <br class="responsive-break" />
+            <span class="text-gradient" id="typewriter-text"></span>
+        </h1>
+        
+        <p class="reveal-text delay-1">
+            {content.description}
+        </p>
+        
+        <div class="cta-buttons reveal-text delay-2">
+            <button class="primary">{content.btnPrimary}</button>
+            <button class="secondary">{content.btnSecondary}</button>
+        </div>
+    </div>
+</section>
+
+<script>
+    // ==========================================
+    // 1. LÓGICA DE PARTÍCULAS
+    // ==========================================
+    const canvas = document.getElementById('particles-canvas') as HTMLCanvasElement;
+    const ctx = canvas.getContext('2d');
+    
+    let particlesArray = [];
+    const numberOfParticles = 100;
+    const mouseRadius = 150;
+
+    const colors = [
+      'rgba(56, 189, 248, 0.9)',  // Cyan
+      'rgba(129, 140, 248, 0.9)', // Indigo
+      'rgba(192, 132, 252, 0.9)', // Violeta
+      'rgba(255, 255, 255, 0.8)'  // Blanco
+    ];
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let mouse = { x: null, y: null, radius: mouseRadius }
+
+    window.addEventListener('mousemove', function(event) {
+        mouse.x = event.x; mouse.y = event.y;
+    });
+    window.addEventListener('mouseout', function() {
+        mouse.x = undefined; mouse.y = undefined;
+    });
+
+    class Particle {
+        constructor(x, y, directionX, directionY, size, color) {
+            this.x = x; this.y = y;
+            this.directionX = directionX; this.directionY = directionY;
+            this.size = size; this.color = color;
+            this.baseX = x; this.baseY = y;
+            this.density = (Math.random() * 30) + 1; 
+        }
+        draw() {
+            if (!ctx) return;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+            ctx.fillStyle = this.color;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = this.color;
+            ctx.fill();
+        }
+        update() {
+            let dx = mouse.x - this.x;
+            let dy = mouse.y - this.y;
+            let distance = Math.sqrt(dx*dx + dy*dy);
+            if (distance < mouse.radius) {
+                const forceDirectionX = dx / distance;
+                const forceDirectionY = dy / distance;
+                const maxDistance = mouse.radius;
+                const force = (maxDistance - distance) / maxDistance;
+                const directionX = forceDirectionX * force * this.density;
+                const directionY = forceDirectionY * force * this.density;
+                this.x -= directionX * 5; this.y -= directionY * 5;
+            } else {
+                this.x += this.directionX; this.y += this.directionY;
+            }
+            if (this.x > canvas.width || this.x < 0) this.directionX = -this.directionX;
+            if (this.y > canvas.height || this.y < 0) this.directionY = -this.directionY;
+            this.draw();
+        }
+    }
+
+    function initParticles() {
+        particlesArray = [];
+        for (let i = 0; i < numberOfParticles; i++) {
+            let size = (Math.random() * 3) + 1;
+            let x = (Math.random() * (innerWidth - size * 2) - (size * 2)) + size * 2;
+            let y = (Math.random() * (innerHeight - size * 2) - (size * 2)) + size * 2;
+            let directionX = (Math.random() * 1) - 0.5;
+            let directionY = (Math.random() * 1) - 0.5;
+            let color = colors[Math.floor(Math.random() * colors.length)];
+            particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
+        }
+    }
+
+    function animateParticles() {
+        requestAnimationFrame(animateParticles);
+        if (!ctx) return;
+        ctx.clearRect(0, 0, innerWidth, innerHeight);
+        for (let i = 0; i < particlesArray.length; i++) {
+            particlesArray[i].update();
+        }
+    }
+
+    initParticles();
+    animateParticles();
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        initParticles();
+    });
+
+    // ==========================================
+    // 2. LÓGICA TYPEWRITER
+    // ==========================================
+    const typewriterElement = document.getElementById('typewriter-text');
+    const phrases = [
+        "of Development",
+        "of Innovation",
+        "with Intelligence",
+        "Beyond Limits",
+        "One Line at a Time",
+        "of Technology",
+        "Today"
+    ];
+
+    let phraseIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+
+    const typingSpeed = 150;
+    const deletingSpeed = 75;
+    const pauseEnd = 3500;
+    const pauseStart = 800;
+
+    function typeEffect() {
+        const currentPhrase = phrases[phraseIndex];
+        let currentSpeed = typingSpeed;
+
+        if (isDeleting) {
+            charIndex--;
+            currentSpeed = deletingSpeed;
+        } else {
+            charIndex++;
+            currentSpeed = typingSpeed + Math.random() * 50;
+        }
+
+        if (typewriterElement) {
+            typewriterElement.textContent = currentPhrase.substring(0, charIndex);
+        }
+
+        if (!isDeleting && charIndex === currentPhrase.length) {
+            currentSpeed = pauseEnd;
+            isDeleting = true;
+        } else if (isDeleting && charIndex === 0) {
+            currentSpeed = pauseStart;
+            isDeleting = false;
+            phraseIndex = (phraseIndex + 1) % phrases.length;
+        }
+
+        setTimeout(typeEffect, currentSpeed);
+    }
+
+    setTimeout(() => {
+        typeEffect();
+    }, 1600);
+
+
+    // ==========================================
+    // 3. LÓGICA FADE OUT AL SCROLL (Efecto Cortina)
+    // ==========================================
+    const heroSection = document.querySelector('.hero-content') as HTMLElement;
+    
+    window.addEventListener('scroll', () => {
+        if (!heroSection) return;
+
+        const scrollPosition = window.scrollY;
+        const windowHeight = window.innerHeight;
+        
+        // Empieza a desvanecerse inmediatamente al bajar
+        // Se vuelve invisible al 60% del scroll de pantalla
+        let opacity = 1 - (scrollPosition / (windowHeight * 0.6));
+        
+        // Efecto de alejamiento (Profundidad)
+        let scale = 1 - (scrollPosition * 0.0005);
+        let translateY = scrollPosition * 0.2; // Parallax suave hacia abajo
+
+        if (opacity >= 0) {
+            heroSection.style.opacity = opacity.toString();
+            heroSection.style.transform = `scale(${scale}) translateY(${translateY}px)`;
+            heroSection.style.pointerEvents = 'auto'; 
+        } else {
+            heroSection.style.opacity = '0';
+            heroSection.style.pointerEvents = 'none'; // Desactiva clicks cuando no se ve
+        }
+    });
+
+</script>
+
+<style>
+    /* --- GLOBAL --- */
+    :global(body) {
+        background-color: #050505; 
+        color: #e2e8f0;
+        width: 100vw; 
+        min-height: 100vh;
+        overflow-x: hidden;
+        overflow-y: auto; /* Permitir scroll vertical */
+    }
+
+    /* --- CANVAS --- */
+    #particles-canvas {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        z-index: 1; pointer-events: none;
+    }
+
+    /* --- CONTAINER (STICKY) --- */
+    .home-container {
+        position: sticky; /* Se queda pegado al hacer scroll */
+        top: 0;
+        height: 100vh;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 0 1rem;
+        z-index: 0; /* Al fondo para que el Bento pase por encima */
+        overflow: hidden;
+    }
+
+    /* --- CONTENIDO --- */
+    .hero-content {
+        position: relative;
+        z-index: 10;
+        max-width: 1000px;
+        width: 100%;
+        margin-top: -15vh; /* Ajuste para subir visualmente el bloque */
+        
+        /* Optimización para la animación de scroll */
+        will-change: opacity, transform; 
+    }
+
+    /* --- TYPOGRAPHY --- */
+    h1 {
+        font-family: 'Outfit', sans-serif;
+        font-size: clamp(3rem, 8vw, 6.5rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        margin-bottom: 2rem; 
+        color: #e2e8f0;
+        line-height: 1.2;
+        padding-bottom: 0.2em;
+    }
+
+    .text-gradient {
+        background: linear-gradient(135deg, #38bdf8 0%, #a78bfa 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.3));
+        display: inline-block;
+        padding-bottom: 15px;
+        margin-bottom: -15px;
+    }
+
+    #typewriter-text::after {
+        content: '|';
+        display: inline-block;
+        margin-left: 4px;
+        color: #a78bfa;
+        font-weight: 400;
+        animation: blinkCursor 1s step-end infinite;
+        position: relative;
+        top: -5px; 
+    }
+
+    @keyframes blinkCursor {
+        from, to { opacity: 1; }
+        50% { opacity: 0; }
+    }
+
+    p {
+        font-family: 'Outfit', sans-serif;
+        font-size: clamp(1rem, 2vw, 1.35rem);
+        color: #94a3b8;
+        margin-bottom: 3.5rem;
+        max-width: 650px;
+        margin-left: auto;
+        margin-right: auto;
+        font-weight: 300;
+        line-height: 1.7;
+    }
+
+    /* --- BUTTONS --- */
+    .cta-buttons { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
+    button {
+        padding: 1rem 2.5rem; border-radius: 4px; font-size: 0.9rem;
+        font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+        cursor: pointer; transition: all 0.3s ease;
+    }
+    .primary { background: #e2e8f0; color: #050505; border: 1px solid #e2e8f0; }
+    .primary:hover { background: #fff; box-shadow: 0 0 40px rgba(255, 255, 255, 0.4); transform: translateY(-2px); }
+    .secondary { background: transparent; color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.2); }
+    .secondary:hover { border-color: #38bdf8; color: #38bdf8; background: rgba(56, 189, 248, 0.05); box-shadow: 0 0 20px rgba(56, 189, 248, 0.1); }
+
+    /* --- ANIMATIONS --- */
+    .reveal-text { opacity: 0; animation: revealBlur 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .delay-1 { animation-delay: 0.2s; }
+    .delay-2 { animation-delay: 0.4s; }
+    @keyframes revealBlur {
+        0% { opacity: 0; transform: translateY(30px); filter: blur(15px); }
+        100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+    }
+
+    @media (max-width: 768px) {
+        .responsive-break { display: block; }
+        h1 { font-size: 3.5rem; }
+        .cta-buttons { flex-direction: column; width: 100%; max-width: 300px; margin: 0 auto; }
+        button { width: 100%; }
+    }
+</style>

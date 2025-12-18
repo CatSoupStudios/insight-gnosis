@@ -1,0 +1,264 @@
+---
+// Telemetry.astro
+const metrics = [
+  {
+    id: "uptime",
+    label: "SYSTEM UPTIME",
+    value: "99.99",
+    suffix: "%",
+    desc: "Uninterrupted cognitive service availability."
+  },
+  {
+    id: "users",
+    label: "ACTIVE NODES",
+    value: "840",
+    suffix: "K+",
+    desc: "Global endpoints interacting with our architecture."
+  },
+  {
+    id: "latency",
+    label: "AVG LATENCY",
+    value: "12",
+    suffix: "MS",
+    desc: "Edge-computed responses at light speed."
+  },
+  {
+    id: "security",
+    label: "THREATS BLOCKED",
+    value: "4.2",
+    suffix: "M",
+    desc: "Autonomous defense protocols active."
+  }
+];
+---
+
+<section class="telemetry-section">
+    <div class="world-grid"></div>
+    <div class="vignette"></div>
+
+    <div class="telemetry-wrapper">
+        <div class="header-minimal reveal-on-scroll">
+            <span class="mono-label">/// SYSTEM STATUS: NOMINAL</span>
+            <h2 class="section-title">LIVE <span class="text-gradient">TELEMETRY</span></h2>
+        </div>
+
+        <div class="metrics-grid">
+            {metrics.map((metric) => (
+                <div class="metric-card reveal-on-scroll">
+                    <div class="metric-header">
+                        <div class="dot pulse"></div>
+                        <span class="metric-label">{metric.label}</span>
+                    </div>
+                    
+                    <div class="metric-value-container">
+                        <span class="metric-value scrambler" data-target={metric.value}>000</span>
+                        <span class="metric-suffix">{metric.suffix}</span>
+                    </div>
+
+                    <p class="metric-desc">{metric.desc}</p>
+                    
+                    <div class="scan-line"></div>
+                    <div class="corner-accents"></div>
+                </div>
+            ))}
+        </div>
+    </div>
+</section>
+
+<script>
+    const animateCounter = (el) => {
+        const targetAttr = el.getAttribute('data-target');
+        const target = parseFloat(targetAttr);
+        const isFloat = targetAttr.includes('.');
+        const duration = 2000; 
+        const startTime = performance.now();
+
+        const update = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const ease = 1 - Math.pow(2, -10 * progress);
+            let current = 0 + (target - 0) * ease;
+
+            if (progress < 1) {
+                el.innerText = isFloat ? current.toFixed(2) : Math.floor(current).toString();
+                requestAnimationFrame(update);
+            } else {
+                el.innerText = targetAttr; 
+            }
+        };
+        requestAnimationFrame(update);
+    };
+
+    const observerOptions = { 
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.15 // CORRECCIÓN: Activación más temprana para móviles
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const element = entry.target.querySelector('.scrambler');
+                if (element && !element.classList.contains('done')) {
+                    animateCounter(element);
+                    element.classList.add('done');
+                }
+                entry.target.classList.add('is-visible');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.metric-card').forEach(card => observer.observe(card));
+</script>
+
+<style>
+    .telemetry-section {
+        position: relative;
+        z-index: 20;
+        width: 100%;
+        padding: 6rem 1.5rem; /* Ajuste de padding lateral */
+        background-color: #050505;
+        overflow: hidden;
+    }
+
+    .world-grid {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-image: radial-gradient(rgba(56, 189, 248, 0.12) 1px, transparent 1px);
+        background-size: 40px 40px;
+        opacity: 0.5;
+        z-index: 0;
+        animation: panMap 120s linear infinite;
+    }
+
+    @keyframes panMap {
+        from { background-position: 0 0; }
+        to { background-position: 1000px 1000px; }
+    }
+
+    .vignette {
+        position: absolute; inset: 0;
+        background: radial-gradient(circle at center, transparent 20%, #050505 100%);
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .telemetry-wrapper {
+        position: relative;
+        z-index: 2;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .header-minimal { 
+        text-align: left; 
+        margin-bottom: 4rem; 
+        padding-left: 1.5rem; 
+        border-left: 2px solid #38bdf8; 
+    }
+    
+    .section-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: clamp(2rem, 5vw, 2.5rem);
+        color: #fff;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .mono-label { 
+        display: block; 
+        font-family: monospace; 
+        color: #38bdf8; 
+        font-size: 0.75rem; 
+        margin-bottom: 0.5rem; 
+        letter-spacing: 2px; 
+    }
+
+    .text-gradient { 
+        background: linear-gradient(135deg, #38bdf8 0%, #a78bfa 100%); 
+        -webkit-background-clip: text; 
+        -webkit-text-fill-color: transparent; 
+    }
+
+    /* GRID RESPONSIVO */
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+    }
+
+    .metric-card {
+        background: rgba(15, 23, 42, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 2rem;
+        position: relative;
+        backdrop-filter: blur(10px);
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    
+    .metric-card.is-visible { opacity: 1; transform: translateY(0); }
+
+    .metric-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+    
+    .dot { width: 8px; height: 8px; background-color: #22c55e; border-radius: 50%; }
+    .pulse { animation: pulseGreen 2s infinite; }
+
+    @keyframes pulseGreen {
+        0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+
+    .metric-label { font-family: monospace; color: #64748b; font-size: 0.7rem; letter-spacing: 1px; }
+
+    .metric-value-container { display: flex; align-items: baseline; gap: 6px; margin-bottom: 0.75rem; }
+    
+    /* Fuente fluida para que el número nunca se salga de la tarjeta */
+    .metric-value { 
+        font-family: 'Outfit', sans-serif; 
+        font-size: clamp(2.5rem, 4vw, 3.5rem); 
+        font-weight: 700; 
+        color: #fff; 
+        line-height: 1; 
+    }
+    
+    .metric-suffix { 
+        font-family: 'Outfit', sans-serif; 
+        font-size: clamp(1rem, 2vw, 1.5rem); 
+        font-weight: 400; 
+        color: #38bdf8; 
+    }
+
+    .metric-desc { font-size: 0.85rem; color: #94a3b8; line-height: 1.5; }
+
+    /* HUD ACCENTS */
+    .scan-line {
+        position: absolute; top: 0; left: 0; width: 100%; height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.4), transparent);
+        animation: scanLine 4s linear infinite;
+        opacity: 0.5;
+    }
+
+    @keyframes scanLine { 0% { top: 0; } 100% { top: 100%; } }
+
+    .corner-accents {
+        position: absolute; bottom: 0; right: 0; width: 12px; height: 12px;
+        border-bottom: 2px solid #38bdf8; border-right: 2px solid #38bdf8;
+        opacity: 0.6;
+    }
+
+    /* BREAKPOINTS */
+    @media (max-width: 1100px) {
+        .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 640px) {
+        .telemetry-section { padding: 4rem 1.25rem; }
+        .metrics-grid { grid-template-columns: 1fr; gap: 1rem; }
+        .metric-card { padding: 1.5rem; }
+        .header-minimal { margin-bottom: 2.5rem; }
+        .metric-value { font-size: 3rem; } /* Tamaño fijo cómodo para móvil */
+    }
+</style>
